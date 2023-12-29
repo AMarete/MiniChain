@@ -86,11 +86,7 @@ class Prompt(Generic[Input, Output, FnOutput]):
         gradio_conf: Any = None,
     ):
         self.fn = fn
-        if not isinstance(backend, List):
-            self.backend = [backend]
-        else:
-            self.backend = backend
-
+        self.backend = [backend] if not isinstance(backend, List) else backend
         self.template_file: Optional[str] = template_file
         self.template: Optional[str] = template
         self.gradio_conf = gradio_conf
@@ -129,8 +125,7 @@ class Prompt(Generic[Input, Output, FnOutput]):
             self.run_log = RunLog()
 
         def __call__(self, model_input: Any, tool_num: int = 0) -> Any:
-            for r in self.stream(model_input, tool_num):
-                yield r
+            yield from self.stream(model_input, tool_num)
 
             # print("hello tool")
             # for out in self.prompt.dynamic[tool_num].expand(*model_input):

@@ -17,8 +17,7 @@ from jinja2 import select_autoescape, FileSystemLoader, Environment
 import json
 
 def enum(x: Type[Enum]) -> Dict[str, int]:
-    d = {e.name: e.value for e in x}
-    return d
+    return {e.name: e.value for e in x}
 
 
 def walk(x: Any) -> Any:

@@ -35,20 +35,23 @@ def agent(model, query, history):
 @transform()
 def tool_parse(out):
     lines = out.split("\n")
-    if lines[0].split("?")[-1].strip() == "Yes":
-        tool = lines[1].split(":", 1)[-1].strip()
-        command = lines[2].split(":", 1)[-1].strip()
-        return tool, command
-    else:
+    if lines[0].split("?")[-1].strip() != "Yes":
         return Break()
+    tool = lines[1].split(":", 1)[-1].strip()
+    command = lines[2].split(":", 1)[-1].strip()
+    return tool, command
 
 @prompt(tools)
 def tool_use(model, usage):
     selector, command = usage
-    for i, tool in enumerate(tools):
-        if selector == tool.__class__.__name__:
-            return model(command, tool_num=i)
-    return ("",)
+    return next(
+        (
+            model(command, tool_num=i)
+            for i, tool in enumerate(tools)
+            if selector == tool.__class__.__name__
+        ),
+        ("",),
+    )
 
 @transform()
 def append(history, new, observation):
