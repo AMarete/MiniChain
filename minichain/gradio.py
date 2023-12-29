@@ -147,9 +147,7 @@ def to_gradio_block(
         )
 
         def format(s: Any) -> Any:
-            if isinstance(s, str):
-                return {"string": s}
-            return s
+            return {"string": s} if isinstance(s, str) else s
 
         def mark(s: Any) -> Any:
             return str(s)  # f"```text\n{s}\n```"
@@ -208,7 +206,7 @@ def chain_blocks(
 
 
 def api_keys(keys: Set[str] = {"OPENAI_API_KEY"}) -> None:
-    if all([k in os.environ for k in keys]):
+    if all(k in os.environ for k in keys):
         return
     key_names = {}
 
@@ -311,7 +309,7 @@ def show(
         gr.Markdown(description)
 
         # Build the top query box with one input for each field.
-        inputs = list([gr.Textbox(label=f) for f in fields])
+        inputs = [gr.Textbox(label=f) for f in fields]
         examples = gr.Examples(examples=examples, inputs=inputs)
         query_btn = gr.Button(value="Run")
         constructor = constructor.add_inputs(inputs)

@@ -37,10 +37,7 @@ def next_step(ask):
 
 @prompt(Google())
 def google(model, state):
-    if state.next_query is None:
-        return ""
-
-    return model(state.next_query)
+    return "" if state.next_query is None else model(state.next_query)
 
 @transform()
 def update(state, result):
@@ -51,7 +48,7 @@ def update(state, result):
 
 def selfask(question):
     state = State(question)
-    for i in range(3):
+    for _ in range(3):
         state = next_step(self_ask(state))
         state = update(google(state))
     return state

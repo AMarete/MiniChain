@@ -122,8 +122,7 @@ class Python(Backend):
         f = StringIO()
         with redirect_stdout(f):
             exec(p)
-        s = f.getvalue()
-        return s
+        return f.getvalue()
 
     def __repr__(self) -> str:
         return "Python-Backend"
@@ -154,9 +153,7 @@ class Bash(Backend):
                 stderr=subprocess.STDOUT,
             ).stdout.decode()
         except subprocess.CalledProcessError as error:
-            if self.return_err_output:
-                return str(error.stdout.decode())
-            return str(error)
+            return str(error.stdout.decode()) if self.return_err_output else str(error)
         if self.strip_newlines:
             output = output.strip()
         return output
@@ -262,8 +259,7 @@ class HuggingFace(HuggingFaceBase):
         self.client = InferenceApi(
             token=self.api_key, repo_id=self.model, task="text-generation"
         )
-        response = self.client(inputs=request)
-        return response  # type: ignore
+        return self.client(inputs=request)
 
 
 class HuggingFaceEmbed(HuggingFaceBase):
@@ -277,8 +273,7 @@ class HuggingFaceEmbed(HuggingFaceBase):
         self.client = InferenceApi(
             token=self.api_key, repo_id=self.model, task="feature-extraction"
         )
-        response = self.client(inputs=request)
-        return response  # type: ignore
+        return self.client(inputs=request)
 
 
 class Manifest(Backend):

@@ -40,7 +40,7 @@ names = {
 # Convert an example to dataframe
 def to_df(d):
     players = {player for v in d.values() if v is not None for player, _  in v.items()}
-    lookup = {k: {a: b for a, b in v.items()} for k,v in d.items()}
+    lookup = {k: dict(v.items()) for k,v in d.items()}
     rows = [dict(**{"player": p}, **{k: "_" if p not in lookup.get(k, []) else lookup[k][p] for k in names.keys()})
             for p in players]
     return pd.DataFrame.from_dict(rows).astype("str").sort_values(axis=0, by="player", ignore_index=True).transpose()
@@ -48,10 +48,16 @@ def to_df(d):
 
 # Make few shot examples
 few_shot_examples = 2
-examples = []
-for i in range(few_shot_examples):
-    examples.append({"input": rotowire[i][1],
-                     "output": to_df(rotowire[i][0][1]).transpose().set_index("player").to_csv(sep="\t")})
+examples = [
+    {
+        "input": rotowire[i][1],
+        "output": to_df(rotowire[i][0][1])
+        .transpose()
+        .set_index("player")
+        .to_csv(sep="\t"),
+    }
+    for i in range(few_shot_examples)
+]
 
 def make_html(out):
     return "<table><tr><td>" + out.replace("\t", "</td><td>").replace("\n", "</td></tr><tr><td>")  + "</td></td></table>"
